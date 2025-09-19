@@ -7,7 +7,6 @@ use App\Models\Equipment;
 use App\Models\GatePass;
 use App\Models\Requisition;
 use App\Models\User;
-use App\Models\Designation;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -16,6 +15,18 @@ class Dashboard extends Component
 {
     protected static string $layout = 'components.layouts.app';
 
+    public function mount()
+    {
+        // Dispatch an event to initialize charts when component is mounted
+        $this->dispatch('dashboardUpdated');
+    }
+    
+    public function hydrate()
+    {
+        // Dispatch an event to reinitialize charts when component is rehydrated
+        $this->dispatch('dashboardUpdated');
+    }
+    
     public function render()
     {
         // Get equipment statistics
@@ -65,9 +76,6 @@ class Dashboard extends Component
         $totalUsers = User::count();
         $adminUsers = User::where('is_admin', true)->count();
         $regularUsers = $totalUsers - $adminUsers;
-        
-        // Designations statistics
-        $totalDesignations = Designation::count();
         
         // Monthly equipment additions
         $currentYear = Carbon::now()->year;
@@ -142,7 +150,6 @@ class Dashboard extends Component
             'totalUsers' => $totalUsers,
             'adminUsers' => $adminUsers,
             'regularUsers' => $regularUsers,
-            'totalDesignations' => $totalDesignations,
             'monthlyLabels' => $monthlyLabels,
             'monthlyEquipmentData' => $monthlyEquipmentData,
             'monthlyGatePassData' => $monthlyGatePassData,

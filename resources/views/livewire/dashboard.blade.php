@@ -121,7 +121,7 @@
                     </div>
                 </div>
             </div>
-            <div class="h-64">
+            <div class="h-64" wire:ignore>
                 <canvas id="equipmentStatusChart"></canvas>
             </div>
         </div>
@@ -129,7 +129,7 @@
         <!-- Monthly Equipment Additions -->
         <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-5">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Monthly Additions ({{ date('Y') }})</h3>
-            <div class="h-64">
+            <div class="h-64" wire:ignore>
                 <canvas id="monthlyAdditionsChart"></canvas>
             </div>
         </div>
@@ -137,7 +137,7 @@
         <!-- Equipment by Department -->
         <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-5">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Equipment by Department (Top 5)</h3>
-            <div class="h-64">
+            <div class="h-64" wire:ignore>
                 <canvas id="departmentEquipmentChart"></canvas>
             </div>
         </div>
@@ -374,29 +374,41 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        // Store chart instances globally so we can destroy them when needed
+        let equipmentStatusChart = null;
+        let monthlyAdditionsChart = null;
+        let departmentEquipmentChart = null;
+        
+        function initCharts() {
+            // Destroy existing chart instances if they exist
+            if (equipmentStatusChart) equipmentStatusChart.destroy();
+            if (monthlyAdditionsChart) monthlyAdditionsChart.destroy();
+            if (departmentEquipmentChart) departmentEquipmentChart.destroy();
+            
             // Equipment Status Chart
-            const equipmentStatusCtx = document.getElementById('equipmentStatusChart').getContext('2d');
-            const equipmentStatusChart = new Chart(equipmentStatusCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Active', 'Maintenance', 'Inactive', 'Disposed'],
-                    datasets: [{
-                        data: [
-                            {{ $activeEquipment }}, 
-                            {{ $maintenanceEquipment }}, 
-                            {{ $inactiveEquipment }}, 
-                            {{ $disposedEquipment }}
-                        ],
-                        backgroundColor: [
-                            '#10b981', // emerald-500
-                            '#f59e0b', // amber-500
-                            '#ef4444', // red-500
-                            '#6b7280'  // gray-500
-                        ],
-                        borderWidth: 0
-                    }]
-                },
+            const equipmentStatusCtx = document.getElementById('equipmentStatusChart');
+            if (equipmentStatusCtx) {
+                const ctx = equipmentStatusCtx.getContext('2d');
+                equipmentStatusChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Active', 'Maintenance', 'Inactive', 'Disposed'],
+                        datasets: [{
+                            data: [
+                                {{ $activeEquipment }}, 
+                                {{ $maintenanceEquipment }}, 
+                                {{ $inactiveEquipment }}, 
+                                {{ $disposedEquipment }}
+                            ],
+                            backgroundColor: [
+                                '#10b981', // emerald-500
+                                '#f59e0b', // amber-500
+                                '#ef4444', // red-500
+                                '#6b7280'  // gray-500
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -409,9 +421,13 @@
                 }
             });
             
+            }
+            
             // Monthly Additions Chart
-            const monthlyAdditionsCtx = document.getElementById('monthlyAdditionsChart').getContext('2d');
-            const monthlyAdditionsChart = new Chart(monthlyAdditionsCtx, {
+            const monthlyAdditionsCtx = document.getElementById('monthlyAdditionsChart');
+            if (monthlyAdditionsCtx) {
+                const ctx = monthlyAdditionsCtx.getContext('2d');
+                monthlyAdditionsChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: @json($monthlyLabels),
@@ -453,9 +469,13 @@
                 }
             });
             
+            }
+            
             // Department Equipment Chart
-            const departmentEquipmentCtx = document.getElementById('departmentEquipmentChart').getContext('2d');
-            const departmentEquipmentChart = new Chart(departmentEquipmentCtx, {
+            const departmentEquipmentCtx = document.getElementById('departmentEquipmentChart');
+            if (departmentEquipmentCtx) {
+                const ctx = departmentEquipmentCtx.getContext('2d');
+                departmentEquipmentChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: @json($equipmentByDepartment->pluck('name')->toArray()),
@@ -495,6 +515,32 @@
                     }
                 }
             });
+            }
+        }
+        
+        // Initialize charts on first page load
+        document.addEventListener('DOMContentLoaded', initCharts);
+        
+        // Initialize charts when the Livewire component is initialized
+        document.addEventListener('livewire:init', () => {
+            // Listen for component-specific events
+            Livewire.on('dashboardUpdated', () => {
+                setTimeout(initCharts, 50);
+            });
         });
+        
+        // Handle Livewire navigation events (for wire:navigate)
+        document.addEventListener('livewire:navigated', () => {
+            setTimeout(initCharts, 50);
+        });
+        
+        // For Turbolinks or other navigation libraries
+        document.addEventListener('turbo:load', initCharts);
+        document.addEventListener('turbolinks:load', initCharts);
+        
+        // Call initCharts immediately in case we're already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(initCharts, 100);
+        }
     </script>
 </div>

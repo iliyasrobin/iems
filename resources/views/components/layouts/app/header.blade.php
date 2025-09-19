@@ -103,7 +103,6 @@
                     </flux:navlist.item>
                     <flux:navlist.item icon="queue-list" :href="route('equipment')" :current="request()->routeIs('equipment')" wire:navigate>{{ __('Equipment') }}</flux:navlist.item>
                     <flux:navlist.item icon="building-office" :href="route('departments')" :current="request()->routeIs('departments')" wire:navigate>{{ __('Departments') }}</flux:navlist.item>
-                    <flux:navlist.item icon="identification" :href="route('designation')" :current="request()->routeIs('designation')" wire:navigate>{{ __('Designations') }}</flux:navlist.item>
                     <flux:navlist.item icon="globe-alt" :href="route('ip-addresses')" :current="request()->routeIs('ip-addresses')" wire:navigate>{{ __('IP Addresses') }}</flux:navlist.item>
                     
                     <!-- Gate Pass with Submenu -->

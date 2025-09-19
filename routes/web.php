@@ -20,10 +20,6 @@ Route::get('dashboard', App\Livewire\Dashboard::class)
  Route::get('departments', App\Livewire\Departments::class)
     ->middleware(['auth', 'verified'])
     ->name('departments');
-
- Route::get('designation', App\Livewire\Designation::class)
-    ->middleware(['auth', 'verified'])
-    ->name('designation');
     
  Route::get('ip-addresses', App\Livewire\IpAddressList::class)
     ->middleware(['auth', 'verified'])

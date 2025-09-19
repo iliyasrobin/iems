@@ -21,6 +21,7 @@ class RequisitionList extends Component
     public $confirmingDelete = false;
     public $activeTab = 'all';
     public $detailRequisition = null;
+    public $showDetailModal = false;
     
     protected $rules = [
         'item_name' => 'required|string|max:255',
@@ -149,5 +150,13 @@ class RequisitionList extends Component
             ->where('id', $requisitionId)
             ->where('user_id', Auth::id())
             ->first();
+            
+        $this->showDetailModal = true;
+    }
+    
+    public function closeDetailsModal()
+    {
+        $this->showDetailModal = false;
+        $this->detailRequisition = null;
     }
 }

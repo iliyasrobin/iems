@@ -19,6 +19,7 @@ class RequisitionManagement extends Component
     public $remarks;
     public $actionModalOpen = false;
     public $detailRequisition = null;
+    public $showDetailModal = false;
     
     protected $rules = [
         'remarks' => 'required|string|max:1000',
@@ -102,5 +103,13 @@ class RequisitionManagement extends Component
         $this->detailRequisition = Requisition::with(['user', 'approver'])
             ->where('id', $requisitionId)
             ->first();
+            
+        $this->showDetailModal = true;
+    }
+    
+    public function closeDetailsModal()
+    {
+        $this->showDetailModal = false;
+        $this->detailRequisition = null;
     }
 }

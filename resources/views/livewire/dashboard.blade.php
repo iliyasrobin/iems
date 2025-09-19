@@ -1,5 +1,17 @@
-<div class="flex flex-col gap-6 p-4">
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Dashboard</h1>
+<div class="flex flex-col gap-6 p-4" wire:poll.30s>
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Dashboard</h1>
+        <button 
+            wire:click="refresh" 
+            class="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 dark:bg-neutral-800 dark:text-gray-200 dark:border-neutral-700 dark:hover:bg-neutral-700"
+            wire:loading.class="opacity-75"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" wire:loading.class="animate-spin">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Refresh</span>
+        </button>
+    </div>
     
     <!-- Main Stats Overview Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -374,22 +386,27 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
-        // Store chart instances globally so we can destroy them when needed
-        let equipmentStatusChart = null;
-        let monthlyAdditionsChart = null;
-        let departmentEquipmentChart = null;
+        // Store chart instances in an object to better manage them
+        let dashboardCharts = {
+            equipmentStatus: null,
+            monthlyAdditions: null,
+            departmentEquipment: null
+        };
         
         function initCharts() {
             // Destroy existing chart instances if they exist
-            if (equipmentStatusChart) equipmentStatusChart.destroy();
-            if (monthlyAdditionsChart) monthlyAdditionsChart.destroy();
-            if (departmentEquipmentChart) departmentEquipmentChart.destroy();
+            Object.keys(dashboardCharts).forEach(key => {
+                if (dashboardCharts[key]) {
+                    dashboardCharts[key].destroy();
+                    dashboardCharts[key] = null;
+                }
+            });
             
             // Equipment Status Chart
             const equipmentStatusCtx = document.getElementById('equipmentStatusChart');
             if (equipmentStatusCtx) {
                 const ctx = equipmentStatusCtx.getContext('2d');
-                equipmentStatusChart = new Chart(ctx, {
+                dashboardCharts.equipmentStatus = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
                         labels: ['Active', 'Maintenance', 'Inactive', 'Disposed'],
@@ -427,7 +444,7 @@
             const monthlyAdditionsCtx = document.getElementById('monthlyAdditionsChart');
             if (monthlyAdditionsCtx) {
                 const ctx = monthlyAdditionsCtx.getContext('2d');
-                monthlyAdditionsChart = new Chart(ctx, {
+                dashboardCharts.monthlyAdditions = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: @json($monthlyLabels),
@@ -475,7 +492,7 @@
             const departmentEquipmentCtx = document.getElementById('departmentEquipmentChart');
             if (departmentEquipmentCtx) {
                 const ctx = departmentEquipmentCtx.getContext('2d');
-                departmentEquipmentChart = new Chart(ctx, {
+                dashboardCharts.departmentEquipment = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: @json($equipmentByDepartment->pluck('name')->toArray()),
@@ -525,18 +542,28 @@
         document.addEventListener('livewire:init', () => {
             // Listen for component-specific events
             Livewire.on('dashboardUpdated', () => {
+                // Small timeout to ensure DOM is ready
                 setTimeout(initCharts, 50);
             });
+            
+            // Auto-refresh dashboard data every 30 seconds
+            setInterval(() => {
+                // Only refresh if the dashboard is visible
+                if (document.getElementById('equipmentStatusChart')) {
+                    Livewire.dispatch('refreshDashboard');
+                }
+            }, 30000);
         });
         
-        // Handle Livewire navigation events (for wire:navigate)
+        // Handle Livewire navigation events
         document.addEventListener('livewire:navigated', () => {
             setTimeout(initCharts, 50);
         });
         
-        // For Turbolinks or other navigation libraries
-        document.addEventListener('turbo:load', initCharts);
-        document.addEventListener('turbolinks:load', initCharts);
+        // Handle Livewire updates
+        document.addEventListener('livewire:update', () => {
+            setTimeout(initCharts, 50);
+        });
         
         // Call initCharts immediately in case we're already loaded
         if (document.readyState === 'complete' || document.readyState === 'interactive') {

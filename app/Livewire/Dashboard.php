@@ -14,6 +14,15 @@ use Livewire\Component;
 class Dashboard extends Component
 {
     protected static string $layout = 'components.layouts.app';
+    
+    // Enable polling to refresh the dashboard every 30 seconds
+    public function getListeners()
+    {
+        return [
+            '$refresh' => '$refresh',
+            'refreshDashboard' => '$refresh',
+        ];
+    }
 
     public function mount()
     {
@@ -24,6 +33,12 @@ class Dashboard extends Component
     public function hydrate()
     {
         // Dispatch an event to reinitialize charts when component is rehydrated
+        $this->dispatch('dashboardUpdated');
+    }
+    
+    public function refresh()
+    {
+        // This method can be called to manually refresh the dashboard
         $this->dispatch('dashboardUpdated');
     }
     

@@ -23,6 +23,8 @@ class GatePassManagement extends Component
     public $actionModalOpen = false;
     public $actionType = ''; // 'approve' or 'decline'
     public $viewingUserId = null;
+    public $detailGatePass = null;
+    public $showDetailModal = false;
     
     public function setActiveTab($tab)
     {
@@ -72,6 +74,12 @@ class GatePassManagement extends Component
         session()->flash('message', "Gate pass {$message} successfully.");
         
         $this->actionModalOpen = false;
+    }
+    
+    public function loadGatePassDetails($id)
+    {
+        $this->detailGatePass = GatePass::with(['user', 'approver'])->find($id);
+        $this->showDetailModal = true;
     }
     
     public function render()

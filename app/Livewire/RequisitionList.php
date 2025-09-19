@@ -20,6 +20,7 @@ class RequisitionList extends Component
     public $modalOpen = false;
     public $confirmingDelete = false;
     public $activeTab = 'all';
+    public $detailRequisition = null;
     
     protected $rules = [
         'item_name' => 'required|string|max:255',
@@ -140,5 +141,13 @@ class RequisitionList extends Component
         
         $this->confirmingDelete = false;
         $this->reset(['requisitionId']);
+    }
+    
+    public function loadRequisitionDetails($requisitionId)
+    {
+        $this->detailRequisition = Requisition::with(['approver'])
+            ->where('id', $requisitionId)
+            ->where('user_id', Auth::id())
+            ->first();
     }
 }

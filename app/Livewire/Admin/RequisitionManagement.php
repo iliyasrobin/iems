@@ -18,6 +18,7 @@ class RequisitionManagement extends Component
     public $actionType;
     public $remarks;
     public $actionModalOpen = false;
+    public $detailRequisition = null;
     
     protected $rules = [
         'remarks' => 'required|string|max:1000',
@@ -94,5 +95,12 @@ class RequisitionManagement extends Component
         
         $this->actionModalOpen = false;
         $this->reset(['requisitionId', 'actionType', 'remarks']);
+    }
+    
+    public function loadRequisitionDetails($requisitionId)
+    {
+        $this->detailRequisition = Requisition::with(['user', 'approver'])
+            ->where('id', $requisitionId)
+            ->first();
     }
 }

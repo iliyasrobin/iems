@@ -31,6 +31,8 @@ class GatePassList extends Component
     public $activeTab = 'all';
     public $selectedId = null;
     public $isEditing = false;
+    public $detailGatePass = null;
+    public $showDetailModal = false;
     
     public function createNewGatePass()
     {
@@ -115,6 +117,12 @@ class GatePassList extends Component
     {
         $this->activeTab = $tab;
         $this->resetPage();
+    }
+    
+    public function loadGatePassDetails($id)
+    {
+        $this->detailGatePass = GatePass::with(['user', 'approver'])->find($id);
+        $this->showDetailModal = true;
     }
     
     public function render()

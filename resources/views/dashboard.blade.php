@@ -74,7 +74,7 @@
                 </div>
             </div>
             
-            <!-- Equipment Inventory -->
+            <!-- ICT Equipment -->
             <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-5 transition-all hover:shadow-md">
                 <div class="flex items-center justify-between">
                     <div>

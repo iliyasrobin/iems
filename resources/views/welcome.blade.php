@@ -354,7 +354,7 @@
             <div class="feature-icon mx-auto">
               <i class="bi bi-box-seam text-primary"></i>
             </div>
-            <h5 class="fw-bold">Inventory Management</h5>
+            <h5 class="fw-bold">ICT Equipment Management</h5>
             <p class="text-muted small">Track all equipment easily</p>
           </div>
           

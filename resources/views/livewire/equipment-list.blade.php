@@ -163,6 +163,7 @@
                             <th scope="col" class="px-4 py-3">Serial No.</th>
                             <th scope="col" class="px-4 py-3">Department</th>
                             <th scope="col" class="px-4 py-3">Assigned To</th>
+                            <th scope="col" class="px-4 py-3">Challan Image</th>
                             <th scope="col" class="px-4 py-3 cursor-pointer" wire:click="sortBy('status')">
                                 <div class="flex items-center gap-1">
                                     Status
@@ -189,6 +190,16 @@
                                 <td class="px-4 py-3">{{ $equipment->serial_number ?? '-' }}</td>
                                 <td class="px-4 py-3">{{ $equipment->department->name ?? '-' }}</td>
                                 <td class="px-4 py-3">{{ $equipment->assigned_to ?? '-' }}</td>
+                                <td class="px-4 py-3">
+                                    @if ($equipment->chalan_image)
+                                        <img src="{{ asset('storage/' . $equipment->chalan_image) }}" 
+                                             class="h-10 w-10 object-cover cursor-pointer rounded" 
+                                             alt="Challan Image"
+                                             @click="$dispatch('open-modal', { id: 'view-challan-{{ $equipment->id }}' })" />
+                                    @else
+                                        <span class="text-gray-400">No image</span>
+                                    @endif
+                                </td>
                                 <td class="px-4 py-3">
                                     @if($equipment->status === 'active')
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
@@ -472,7 +483,7 @@
                                 </div>
                             @elseif($chalan_image)
                                 <div class="mt-2">
-                                    <img src="{{ asset('storage/'.$chalan_image) }}" class="h-20 w-auto object-cover rounded">
+                                    <img src="{{ asset('storage/' . $chalan_image) }}" class="h-20 w-auto object-cover rounded">
                                 </div>
                             @endif
                         </div>
@@ -575,4 +586,58 @@
             }));
         });
     </script>
+
+    <!-- Challan Image Modals -->
+    @foreach($equipments as $equipment)
+        @if($equipment->chalan_image)
+            <!-- Modal for each equipment with challan image -->
+            <div
+                x-data="{ open: false }"
+                x-show="open"
+                @open-modal.window="if ($event.detail.id === 'view-challan-{{ $equipment->id }}') open = true"
+                @keydown.escape.window="open = false"
+                class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center"
+                x-cloak
+            >
+                <!-- Background overlay -->
+                <div class="fixed inset-0 bg-black opacity-50" @click="open = false"></div>
+                
+                <!-- Modal container -->
+                <div class="relative bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-3xl w-full mx-auto z-10">
+                    <!-- Modal header -->
+                    <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-700">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                            Challan Image - {{ $equipment->name }}
+                        </h3>
+                        <button @click="open = false" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Modal body -->
+                    <div class="p-6">
+                        <div class="flex justify-center">
+                            <img 
+                                src="{{ asset('storage/' . $equipment->chalan_image) }}" 
+                                alt="Challan Image for {{ $equipment->name }}" 
+                                class="max-h-[70vh] max-w-full object-contain"
+                            />
+                        </div>
+                    </div>
+                    
+                    <!-- Modal footer -->
+                    <div class="flex items-center justify-end p-4 border-t border-gray-200 dark:border-neutral-700">
+                        <button 
+                            @click="open = false" 
+                            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 dark:bg-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-600"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endforeach
 </div>

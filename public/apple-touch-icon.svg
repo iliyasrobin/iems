@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+  <!-- Background -->
+  <rect width="180" height="180" rx="60" fill="#4f46e5" />
+  
+  <!-- ICT Equipment Management icon -->
+  <path 
+    fill="white" 
+    d="M120 60H60c-5.523 0-10 4.477-10 10v40c0 5.523 4.477 10 10 10h60c5.523 0 10-4.477 10-10V70c0-5.523-4.477-10-10-10zm0 50H60V70h60v40z" 
+  />
+  <!-- Server/Equipment Rack -->
+  <path 
+    fill="white" 
+    d="M65 80h50v8H65zM65 95h50v8H65zM65 110h50v8H65z" 
+  />
+  <!-- Status lights -->
+  <circle fill="#4ade80" cx="105" cy="84" r="3" />
+  <circle fill="#facc15" cx="105" cy="99" r="3" />
+  <circle fill="#f87171" cx="105" cy="114" r="3" />
+</svg>
